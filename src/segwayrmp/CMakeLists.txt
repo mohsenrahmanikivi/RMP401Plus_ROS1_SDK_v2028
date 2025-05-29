@@ -231,10 +231,16 @@ add_executable(SmartCar
 )
 message( "project source dir " ${PROJECT_SOURCE_DIR} )
 add_dependencies(SmartCar ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(SmartCar
-  ${catkin_LIBRARIES} 
-  #"~/catkin_ws/src/RosCode/segwayrmp/lib/libgxctrl_arm64-v8a.so"
-  #${PROJECT_SOURCE_DIR}/lib/libctrl_arm64-v8a.so
-  ${PROJECT_SOURCE_DIR}/lib/libctrl_x86_64.so
-)
 
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  set(CTRL_LIB ${PROJECT_SOURCE_DIR}/lib/libctrl_x86_64.so)
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+  set(CTRL_LIB ${PROJECT_SOURCE_DIR}/lib/libctrl_arm64-v8a.so)
+else()
+  message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+target_link_libraries(SmartCar
+  ${catkin_LIBRARIES}
+  ${CTRL_LIB}
+)
